@@ -1,0 +1,48 @@
+#!/bin/bash
+#
+# Docker Hub Autobuild post push hook
+#
+# this is supposed to be used in conjunction with an autobuild rule like this:
+# - Source Type     Tag
+# - Source          /^v([0-9]+)\.([0-9]+)\.([0-9]+)/
+# - Docker Tag      {\1}.{\2}.{\3}
+# - Build caching   disabled
+#
+
+echo "---> post_hook running on SOURCE_BRANCH=${SOURCE_BRANCH} with DOCKER_TAG=${DOCKER_TAG}"
+
+SEMVER='(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)'
+PRERELEASE='(-([0-9a-zA-Z]*))?'   # OK so far
+BUILDMETADATA='(\+(.*))?'
+RE="^v${SEMVER}${PRERELEASE}${BUILDMETADATA}$"
+
+if [[ ${SOURCE_BRANCH} =~ ${RE} ]]; then
+    echo '---> semver detected, adding release tags'
+    MAJOR="${BASH_REMATCH[1]}"
+    MINOR="${BASH_REMATCH[2]}"
+    PATCH="${BASH_REMATCH[3]}"
+    PRERELEASE="${BASH_REMATCH[5]}"
+    BUILD="${BASH_REMATCH[7]}"
+
+    # prepare tags up to the patch level
+    TAGS="latest ${MAJOR} ${MAJOR}.${MINOR} ${MAJOR}.${MINOR}.${PATCH}"
+
+    # ignore PRERELASE, but add tag for builds
+    if [[ ! -z "${BUILD}" ]]; then
+        # '+' is not allowed in Docker tags so we use an underscore
+        TAGS="${TAGS} ${MAJOR}.${MINOR}.${PATCH}_${BUILD}"
+    fi
+
+    echo "---> tag list: ${TAGS}"
+    for TAG in ${TAGS}; do
+        # avoid re-tagging the same tag already assigned by Docker autobuild rules
+        if [[ "${TAG}" != "${DOCKER_TAG}" ]]; then
+            echo "---> tagging ${TAG}"
+            docker tag ${IMAGE_NAME} ${DOCKER_REPO}:${TAG}
+            docker push ${DOCKER_REPO}:${TAG}
+        else
+            echo "---> skipping tag ${TAG}"
+        fi
+    done
+
+fi
