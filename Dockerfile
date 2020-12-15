@@ -1,4 +1,4 @@
-FROM codewaysa/alpine:3.12.0_20200612
+FROM codewaysa/alpine:3.12.0_20201214
 
 LABEL com.powerdns.pdns-recursor.version="4.3.5"
 LABEL image_name="codewaysa/pdns-recursor"
