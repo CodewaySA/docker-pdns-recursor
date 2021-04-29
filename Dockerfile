@@ -1,10 +1,10 @@
-FROM codewaysa/alpine:3.12.0_20201214
+FROM codewaysa/alpine:3.13.5_20210428
 
-LABEL com.powerdns.pdns-recursor.version="4.3.5"
+LABEL com.powerdns.pdns-recursor.version="4.4.2"
 LABEL image-name="codewaysa/pdns-recursor"
 LABEL maintainer="l.lesinigo@codeway.ch"
 
-RUN apk add --no-cache pdns-recursor=4.3.5-r0
+RUN apk add --no-cache pdns-recursor=4.4.2-r1
 
 COPY recursor.conf /etc/pdns/recursor.conf
 
