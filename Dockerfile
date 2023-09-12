@@ -1,10 +1,10 @@
-FROM codewaysa/alpine:3.17.2_20230227
+FROM docker.io/codewaysa/alpine:3.18.3_20230912
 
-LABEL com.powerdns.pdns-recursor.version="4.7.3"
+LABEL com.powerdns.pdns-recursor.version="4.8.4"
 LABEL image-name="codewaysa/pdns-recursor"
 LABEL maintainer="l.lesinigo@codeway.ch"
 
-RUN apk add --no-cache pdns-recursor=4.7.3-r0 && \
+RUN apk add --no-cache pdns-recursor=4.8.4-r1 && \
     mkdir -p /var/run/pdns-recursor
 
 COPY recursor.conf /etc/pdns/recursor.conf
